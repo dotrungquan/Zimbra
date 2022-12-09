@@ -29,7 +29,7 @@ sed -i -e 's/'$oldhostname'/'$newhostname'/g' /etc/hostname
 sed -i -e 's/'$oldhostname'/'$newhostname'/g' /etc/hosts
 sed -i -e 's/'$oldhostname'/'$newhostname'/g' /etc/dnsmasq.conf
 
-su - zimbra -c "zmprov ca admin@domainnew 321j1o0WCkyAR2PP zimbraIsAdminAccount TRUE"
+su - zimbra -c "zmprov ca admin@'$domainnew' 321j1o0WCkyAR2PP zimbraIsAdminAccount TRUE"
 
 
 reboot
