@@ -1,8 +1,8 @@
 #!/bin/bash
 #Author: DOTRUNGQUAN.INFO
-read -p "oldhostname: " oldhostname
-read -p "newhostname: " newhostname
-read -p "domainnew: " domainnew
+read -p "Nhap Vao HostName Cu: " oldhostname
+read -p "Nhap Vao HostName Moiw: " newhostname
+#read -p "Nhap vao Domain Moi: " domainnew
 
 su - zimbra -c 'zmcontrol stop'
 su - zimbra -c "/opt/zimbra/libexec/zmsetservername -n $newhostname"
@@ -29,7 +29,7 @@ sed -i -e 's/'$oldhostname'/'$newhostname'/g' /etc/hostname
 sed -i -e 's/'$oldhostname'/'$newhostname'/g' /etc/hosts
 sed -i -e 's/'$oldhostname'/'$newhostname'/g' /etc/dnsmasq.conf
 
-su - zimbra -c "zmprov ca admin@'$domainnew' 321j1o0WCkyAR2PP zimbraIsAdminAccount TRUE"
+#su - zimbra -c "zmprov ca admin@'$domainnew' 321j1o0WCkyAR2PP zimbraIsAdminAccount TRUE"
 
 
 reboot
