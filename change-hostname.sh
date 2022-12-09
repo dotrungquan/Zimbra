@@ -1,4 +1,5 @@
 #!/bin/bash
+#Author: DOTRUNGQUAN.INFO
 read -p "oldhostname: " oldhostname
 read -p "newhostname: " newhostname
 
