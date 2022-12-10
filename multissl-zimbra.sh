@@ -11,7 +11,7 @@ su - zimbra -c "zmprov md '$domain' zimbraVirtualHostName '$hostname' zimbraVirt
 
 chown -R zimbra:zimbra '$dir'
 
-wget -P /tmp/'$domain'/ https://tool.dotrungquan.info/share/ssl/CA.pem
+wget -P /tmp/$domain/ https://tool.dotrungquan.info/share/ssl/CA.pem
 
 su - zimbra -c "/opt/zimbra/bin/zmcertmgr verifycrt comm /tmp/$domain/ssl.key /tmp/$domain/ssl.crt /tmp/$domain/CA.pem"
 cat /tmp/$domain/ssl.crt /tmp/$domain/ssl.ca.crt >> /tmp/$domain/ssl.bundle
