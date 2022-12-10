@@ -1,7 +1,7 @@
 #!/bin/bash
 read -p "Nhap Vao Doamin: " admindomain
 # Domain of concern to be changed
-DOMAIN='$admindomain'
+su - zimbra -c "DOMAIN='$admindomain'"
 
 WHO=`whoami`
 if [ $WHO != "zimbra" ]
