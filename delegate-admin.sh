@@ -1,7 +1,7 @@
 #!/bin/bash
-read -p "Nhap Vao Doamin: " admindomain
+read -p "Enter Your Domain: " domain
 # Domain of concern to be changed
-DOMAIN='$admindomain'
+# DOMAIN='$admindomain'
 
 WHO=`whoami`
 if [ $WHO != "zimbra" ]
@@ -32,31 +32,31 @@ zmprov ma $username zimbraIsDelegatedAdminAccount FALSE
 elif [ "$rg" == 'G' ]
 then
    echo "Please enter the user name (example: user@example.com) you wish to grant delegated domain admin rights."
-   read -p "username: " "username@'$admindomain'"
+   read -p "username: " username
 
 zmprov ma $username zimbraIsDelegatedAdminAccount TRUE
 zmprov ma $username +zimbraAdminConsoleUIComponents accountListView
 zmprov ma $username +zimbraAdminConsoleUIComponents DLListView
-zmprov grr domain $DOMAIN usr $username +listAccount
-zmprov grr domain $DOMAIN usr $username listDomain
-zmprov grr domain $DOMAIN usr $username set.account.zimbraAccountStatus
-zmprov grr domain $DOMAIN usr $username set.account.sn
-zmprov grr domain $DOMAIN usr $username set.account.displayName
-zmprov grr domain $DOMAIN usr $username +addDistributionListMember
-zmprov grr domain $DOMAIN usr $username +getDistributionListMembership
-zmprov grr domain $DOMAIN usr $username +getDistributionList
-zmprov grr domain $DOMAIN usr $username +listDistributionList
-zmprov grr domain $DOMAIN usr $username +removeDistributionListMember
-zmprov grr domain $DOMAIN usr $username domainAdminRights
-zmprov grr domain $DOMAIN usr $username domainAdminConsoleRights
-zmprov grr domain $DOMAIN usr $username adminConsoleAliasRights
-zmprov grr domain $DOMAIN usr $username modifyAccount
-zmprov grr domain $DOMAIN usr $username countAlias
-zmprov grr domain $DOMAIN usr $username -configureAdminUI
-zmprov grr domain $DOMAIN usr $username -get.account.zimbraAdminConsoleUIComponents
-zmprov grr domain $DOMAIN usr $username -get.dl.zimbraAdminConsoleUIComponents
-zmprov grr domain $DOMAIN usr $username -set.account.zimbraIsDelegatedAdminAccount
-zmprov grr domain $DOMAIN usr $username -set.dl.zimbraIsAdminGroup
+zmprov grr domain $domain usr $username +listAccount
+zmprov grr domain $domain usr $username listDomain
+zmprov grr domain $domain usr $username set.account.zimbraAccountStatus
+zmprov grr domain $domain usr $username set.account.sn
+zmprov grr domain $domain usr $username set.account.displayName
+zmprov grr domain $domain usr $username +addDistributionListMember
+zmprov grr domain $domain usr $username +getDistributionListMembership
+zmprov grr domain $domain usr $username +getDistributionList
+zmprov grr domain $domain usr $username +listDistributionList
+zmprov grr domain $domain usr $username +removeDistributionListMember
+zmprov grr domain $domain usr $username domainAdminRights
+zmprov grr domain $domain usr $username domainAdminConsoleRights
+zmprov grr domain $domain usr $username adminConsoleAliasRights
+zmprov grr domain $domain usr $username modifyAccount
+zmprov grr domain $domain usr $username countAlias
+zmprov grr domain $domain usr $username -configureAdminUI
+zmprov grr domain $domain usr $username -get.account.zimbraAdminConsoleUIComponents
+zmprov grr domain $domain usr $username -get.dl.zimbraAdminConsoleUIComponents
+zmprov grr domain $domain usr $username -set.account.zimbraIsDelegatedAdminAccount
+zmprov grr domain $domain usr $username -set.dl.zimbraIsAdminGroup
 
 
 
