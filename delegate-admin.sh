@@ -26,7 +26,7 @@ then
    echo "Please enter the user name (example: user@example.com) you wish to revoke delegated domain admin rights from."
    read -p "username: " username
 
-su - zimbra -c"zmprov ma $username zimbraIsDelegatedAdminAccount FALSE"
+su - zimbra -c "zmprov ma $username zimbraIsDelegatedAdminAccount FALSE"
 
 
 elif [ "$rg" == 'G' ]
