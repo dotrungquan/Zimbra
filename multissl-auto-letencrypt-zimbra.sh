@@ -23,7 +23,7 @@ wget -P /tmp/$domain/ https://tool.dotrungquan.info/share/ssl/CA.pem
 chown -R zimbra:zimbra /tmp/$domain/
 su - zimbra -c "/opt/zimbra/bin/zmcontrol restart"
 su - zimbra -c "/opt/zimbra/bin/zmcertmgr verifycrt comm /tmp/$domain/privkey.pem /tmp/$domain/cert.pem /tmp/$domain/CA.pem"
-su - zimbra -c "/opt/zimbra/bin/zmcertmgr deploycrt comm /tmp/$domain/cert.pem /tmp/$domain/CA.pem"
+#su - zimbra -c "/opt/zimbra/bin/zmcertmgr deploycrt comm /tmp/$domain/cert.pem /tmp/$domain/CA.pem"
 su - zimbra -c "/opt/zimbra/libexec/zmdomaincertmgr savecrt '$domain' /tmp/$domain/cert.pem /tmp/$domain/privkey.pem"
 
 mkdir -p /opt/zimbra/conf/domaincerts/
