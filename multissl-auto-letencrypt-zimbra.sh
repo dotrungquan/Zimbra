@@ -6,10 +6,9 @@ read -p "Nhập vào domain (Ví dụ: example.com): " domain
 read -p "Nhập vào HostName (Ví dụ: mail.$domain): " hostname
 read -p "Nhập vào IP Server: " ipserver
 
+su - zimbra -c 'zmcontrol stop'
 ## Tao zimbraVirtualHostName
 su - zimbra -c "zmprov md $domain zimbraVirtualHostName $hostname zimbraVirtualIPAddress $ipserver"
-
-su - zimbra -c 'zmcontrol stop'
 certbot certonly --standalone -d $hostname
 mkdir -p /tmp/$domain/
 
