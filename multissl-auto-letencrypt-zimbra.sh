@@ -2,10 +2,10 @@
 #Auth: DOTRUNGQUAN.INFO
 #pathnetw="/etc/network/interfaces"
 #ip=$(grep -r "address" $pathnetw |cut -c 9-)
-read -p "Nhập vào domain (Ví dụ: example.com): " domain
+read -p "Nhập vào Tên Miền (Ví dụ: dotrungquan.info ): " domain
 read -p "Nhập vào HostName (Ví dụ: mail.$domain): " hostname
-#read -p "Nhập vào IP Server: " ipserver
-ipserver=$(grep -r "address" /etc/network/interfaces |cut -c 9-)
+read -p "Nhập vào IP Server: " ipserver
+#ipserver=$(grep -r "address" /etc/network/interfaces |cut -c 9-)
 su - zimbra -c 'zmcontrol stop'
 ## Tao zimbraVirtualHostName
 su - zimbra -c "zmprov md $domain zimbraVirtualHostName $hostname zimbraVirtualIPAddress $ipserver"
