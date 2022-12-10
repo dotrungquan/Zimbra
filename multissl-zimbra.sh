@@ -22,4 +22,5 @@ ln -s /tmp/$domain/ssl.crt /opt/zimbra/conf/domaincerts/$domain.crt
 ln -s /tmp/$domain/ssl.ca.crt /opt/zimbra/conf/domaincerts/$domain.ca.crt
 ln -s /tmp/$domain/ssl.key /opt/zimbra/conf/domaincerts/$domain.key
 
+su - zimbra -c "zmprov mcf zimbraReverseProxySNIEnabled TRUE"
 su - zimbra -c "/opt/zimbra/bin/zmproxyctl restart"
