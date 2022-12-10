@@ -4,7 +4,7 @@
 #ip=$(grep -r "address" $pathnetw |cut -c 9-)
 read -p "Nhập vào Tên Miền (Ví dụ: dotrungquan.info ): " domain
 read -p "Nhập vào HostName (Ví dụ: mail.$domain): " hostname
-read -p "Nhập vào IP Server: " ipserver
+read -p "Nhập vào IP Server (Yêu cầu nhập chính xác): " ipserver
 #ipserver=$(grep -r "address" /etc/network/interfaces |cut -c 9-)
 su - zimbra -c 'zmcontrol stop'
 ## Tao zimbraVirtualHostName
