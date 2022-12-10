@@ -32,7 +32,7 @@ zmprov ma $username zimbraIsDelegatedAdminAccount FALSE
 elif [ "$rg" == 'G' ]
 then
    echo "Please enter the user name (example: user@example.com) you wish to grant delegated domain admin rights."
-   read -p "username: " username@$admindomain
+   read -p "username: " 'username@$admindomain'
 
 zmprov ma $username zimbraIsDelegatedAdminAccount TRUE
 zmprov ma $username +zimbraAdminConsoleUIComponents accountListView
