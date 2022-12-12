@@ -1,7 +1,15 @@
 #!/bin/bash
 #Author: DOTRUNGQUAN.INFO
+
+## Gan gia tri hostname cu va moi
 read -p "Nhap Vao HostName Cu: " oldhostname
 read -p "Nhap Vao HostName Moi: " newhostname
+# Lay IP
+ipserver=$(grep -r "address" /etc/network/interfaces |cut -c 9-)
+
+## Tro hosts cho hostname
+echo  \ "$ipserver $newhostname" >> /etc/hosts
+
 
 su - zimbra -c 'zmcontrol stop'
 su - zimbra -c "/opt/zimbra/libexec/zmsetservername -n $newhostname"
