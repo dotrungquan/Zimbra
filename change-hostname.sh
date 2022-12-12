@@ -32,8 +32,8 @@ sed -i -e 's/'$oldhostname'/'$newhostname'/g' /opt/zimbra/conf/nginx/includes/ng
 su - zimbra -c  "zmloggerhostmap -d $oldhostname $oldhostname"
 su - zimbra -c  "zmloggerhostmap -d mail $oldhostname"
 
-sed -i -e 's/'$oldhostname'/'$newhostname'/g' /etc/hostname
-sed -i -e 's/'$oldhostname'/'$newhostname'/g' /etc/hosts
-sed -i -e 's/'$oldhostname'/'$newhostname'/g' /etc/dnsmasq.conf
+#sed -i -e 's/'$oldhostname'/'$newhostname'/g' /etc/hostname
+#sed -i -e 's/'$oldhostname'/'$newhostname'/g' /etc/hosts
+#sed -i -e 's/'$oldhostname'/'$newhostname'/g' /etc/dnsmasq.conf
 
 reboot
