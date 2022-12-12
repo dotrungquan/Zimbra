@@ -8,7 +8,7 @@ read -p "Nhap Vao HostName Moi: " newhostname
 ipserver=$(grep -r "address" /etc/network/interfaces |cut -c 9-)
 
 ## Tro hosts cho hostname
-#echo  \ "$ipserver $newhostname" >> /etc/hosts
+echo \ "$ipserver $newhostname" >> /etc/hosts
 
 
 su - zimbra -c 'zmcontrol stop'
