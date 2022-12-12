@@ -4,9 +4,9 @@ myhostname=$(/etc/hostname)
 read -p "Nhập vào IP moi : " newip
 
 su - zimbra -c "zmcontrol stop"
-su - zimbra -c "zmcontrol start"
 
 cp /opt/zimbra/conf/nginx/includes/nginx.conf.memcache /opt/zimbra/conf/nginx/includes/nginx.conf.memcache.bak
 cp /opt/zimbra/conf/nginx/includes/nginx.conf.zmlookup /opt/zimbra/conf/nginx/includes/nginx.conf.zmlookup.bak
 sed -i -e 's/'$oldip'/'$newip'/g' /opt/zimbra/conf/nginx/includes/nginx.conf.memcache
 sed -i -e 's/'$oldip'/'$newip'/g' /opt/zimbra/conf/nginx/includes/nginx.conf.zmlookup
+su - zimbra -c "zmcontrol start"
