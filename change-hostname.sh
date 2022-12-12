@@ -5,7 +5,8 @@
 read -p "Nhap Vao HostName Cu: " oldhostname
 read -p "Nhap Vao HostName Moi: " newhostname
 # Lay IP
-ipserver=$(grep -r "address" /etc/network/interfaces |cut -c 9-)
+#ipserver=$(grep -r "address" /etc/network/interfaces |cut -c 9-)
+read -p "Nhap Vao IP Server: " ipserver
 
 ## Tro hosts cho hostname
 echo \ "$ipserver $newhostname" >> /etc/hosts
