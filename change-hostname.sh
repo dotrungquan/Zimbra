@@ -33,10 +33,10 @@ sed -i -e 's/'$oldhostname'/'$newhostname'/g' /opt/zimbra/conf/nginx/includes/ng
 su - zimbra -c  "zmloggerhostmap -d $oldhostname $oldhostname"
 su - zimbra -c  "zmloggerhostmap -d mail $oldhostname"
 
-echo > "Dang tien hanh khoi dong lai dich vu"
+echo  "Dang tien hanh khoi dong lai dich vu"
 su - zimbra -c "zmcontrol restart"
 su - zimbra -c "zmcontrol status"
-su - zimbra -c "Khoi dong hoan tat. Vui long kiem tra lai"
+echo  "Khoi dong hoan tat. Vui long kiem tra lai"
 #sed -i -e 's/'$oldhostname'/'$newhostname'/g' /etc/hostname
 #sed -i -e 's/'$oldhostname'/'$newhostname'/g' /etc/hosts
 #sed -i -e 's/'$oldhostname'/'$newhostname'/g' /etc/dnsmasq.conf
