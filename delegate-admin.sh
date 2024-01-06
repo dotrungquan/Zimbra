@@ -3,14 +3,14 @@ read -p "Enter Your Domain: " domain
 # Domain of concern to be changed
 # DOMAIN='$admindomain'
 
-WHO=`whoami`
-if [ $WHO != "zimbra" ]
-then
-  echo
-  echo "Execute this scipt as user zimbra (\"su - zimbra\")"
-  echo
-  exit 1
-fi
+#WHO=`whoami`
+#if [ $WHO != "zimbra" ]
+#then
+#  echo
+#  echo "Execute this scipt as user zimbra (\"su - zimbra\")"
+#  echo
+#  exit 1
+#fi
 
 echo
 echo
