@@ -2,8 +2,8 @@
 # Auth: DOTRUNGQUAN.INFO
 
 function change_logo() {
-    read -p "Nhập vào link Logo App (Size: 283x32): " logoapp
-    read -p "Nhập vào link Logo Login (Size: 350x48): " logologin
+    read -p "Nhập vào link Logo Login (Size: 440x60): " logologin
+    read -p "Nhập vào link Logo App (Size: 200x35): " logoapp
     read -p "Nhập vào domain: " domain
 
     echo "Thông tin nhập hoàn tất, vui lòng chờ"
