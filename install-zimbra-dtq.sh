@@ -23,6 +23,8 @@ OS_FAMILY=""
 DRY_RUN=no
 APPLY=no
 LOCAL_IP=""
+# Chi cai cac package trong allowlist: zimbra-dnscache=N, zimbra-imapd=N.
+# DNS local dung dnsmasq; IMAP thong thuong van do mailbox/store phuc vu.
 readonly ZCS_PACKAGES="zimbra-core zimbra-ldap zimbra-logger zimbra-mta zimbra-snmp zimbra-store zimbra-apache zimbra-spell zimbra-memcached zimbra-proxy"
 readonly UFW_PUBLIC_TCP_PORTS="25 80 443 465 587 993 995"
 
@@ -824,14 +826,14 @@ ADMIN_EMAIL="admin@${DOMAIN}"
 detect_os() {
     local id="$1" version="$2"
     case "$id:$version" in
-        ubuntu:22.04) OS_FAMILY=ubuntu; ZCS_BUILD=0326.UBUNTU22_64.20260821115118 ;;
-        ubuntu:24.04) OS_FAMILY=ubuntu; ZCS_BUILD=0326.UBUNTU24_64.20260821120929 ;;
-        almalinux:8.10|rocky:8.10|rhel:8.10) OS_FAMILY=rhel; ZCS_BUILD=0326.RHEL8_64.20260821135029 ;;
-        almalinux:9.8|rocky:9.8|rhel:9.8) OS_FAMILY=rhel; ZCS_BUILD=0326.RHEL9_64.20260821135258 ;;
+        ubuntu:22.04) OS_FAMILY=ubuntu; ZCS_BUILD=0326.UBUNTU22_64.20260821115118; DEFAULT_ZCS_URL="https://tool.dotrungquan.info/zimbra/source/14BB4E4A_zcs-10.1.20_GA_0326.UBUNTU22_64.20260821115118.tgz" ;;
+        ubuntu:24.04) OS_FAMILY=ubuntu; ZCS_BUILD=0326.UBUNTU24_64.20260821120929; DEFAULT_ZCS_URL="https://tool.dotrungquan.info/zimbra/source/AD1FDAC3_zcs-10.1.20_GA_0326.UBUNTU24_64.20260821120929.tgz" ;;
+        almalinux:8.10|rocky:8.10|rhel:8.10) OS_FAMILY=rhel; ZCS_BUILD=0326.RHEL8_64.20260821135029; DEFAULT_ZCS_URL="https://tool.dotrungquan.info/zimbra/source/90B8466A_zcs-10.1.20_GA_0326.RHEL8_64.20260821135029.tgz" ;;
+        almalinux:9.8|rocky:9.8|rhel:9.8) OS_FAMILY=rhel; ZCS_BUILD=0326.RHEL9_64.20260821135258; DEFAULT_ZCS_URL="https://tool.dotrungquan.info/zimbra/source/3165857B_zcs-10.1.20_GA_0326.RHEL9_64.20260821135258.tgz" ;;
         *) die "OS khong trong danh sach: $id $version" ;;
     esac
     ZCS_ARCHIVE="zcs-${ZCS_VERSION}_GA_${ZCS_BUILD}.tgz"
-    ZCS_SOURCE="${ZCS_SOURCE:-https://cdn.techfiles.online/${OS_FAMILY}/${ZCS_ARCHIVE}}"
+    ZCS_SOURCE="${ZCS_SOURCE:-$DEFAULT_ZCS_URL}"
 }
 source /etc/os-release
 detect_os "$ID" "$VERSION_ID"
@@ -1072,6 +1074,7 @@ fi
 # ------------------------------------------------------------
 
 log "Create software installer configuration"
+printf "Package selection: zimbra-dnscache=N | zimbra-imapd=N\n"
 
 SOFTWARE_CONFIG_FILE="/root/zimbra-software-install.conf"
 
