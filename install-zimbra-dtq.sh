@@ -52,7 +52,7 @@ Usage:
   sudo bash $0 --domain example.com [options]
 
 Required:
-  --domain DOMAIN           Mail domain (for example: example.com)
+  --domain DOMAIN           Mail domain; bo qua de nhap tu terminal
 
 Automatic defaults:
   Public IPv4 is detected from the VPS when --ip is omitted.
@@ -759,7 +759,17 @@ done
 
 ADMIN_PASS="${ADMIN_PASS:-${ZIMBRA_ADMIN_PASSWORD:-}}"
 
-[[ -n "$DOMAIN" ]] || die "--domain required"
+# Hoi domain khi chay bash truc tiep; khong nhan input tu pipe.
+if [[ -z "$DOMAIN" ]]; then
+    [[ -t 0 ]] || die "Khong co terminal; hay truyen --domain DOMAIN"
+    while true; do
+        read -r -p "Nhap ten mien mail (vi du example.com, khong nhap https://): " DOMAIN || die "Da huy nhap"
+        if is_valid_domain "$DOMAIN"; then
+            break
+        fi
+        printf 'Ten mien khong hop le. Vui long nhap lai.\n'
+    done
+fi
 is_valid_domain "$DOMAIN" || die "Invalid domain: $DOMAIN"
 [[ -z "$SERVER_IP" ]] || is_valid_ipv4 "$SERVER_IP" || die "Invalid IPv4: $SERVER_IP"
 [[ "$MAIL_HOST" =~ ^[a-zA-Z0-9]([a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?$ ]] || \
@@ -795,6 +805,22 @@ detect_os "$ID" "$VERSION_ID"
 if [[ "$DRY_RUN" == yes ]]; then
     printf 'OS=%s %s\nURL=%s\nHOSTNAME=%s\nMX=%s -> %s\nDNS=127.0.0.1 (dnsmasq)\n' "$ID" "$VERSION_ID" "$ZCS_SOURCE" "$FQDN" "$DOMAIN" "$FQDN"
     exit 0
+fi
+# Thu thap checksum va xac nhan truoc moi thay doi he thong.
+if [[ -t 0 ]]; then
+    printf '\nOS: %s %s\nDomain: %s\nHostname: %s\nBo cai: %s\n' "$ID" "$VERSION_ID" "$DOMAIN" "$FQDN" "$ZCS_SOURCE"
+    while [[ ! "$ZCS_SHA256" =~ ^[a-f0-9]{64}$ ]]; do
+        read -r -p "Nhap SHA-256 bo cai tu nguon tin cay (Ctrl+C de huy): " ZCS_SHA256 || die "Da huy nhap"
+        ZCS_SHA256="${ZCS_SHA256,,}"
+        [[ "$ZCS_SHA256" =~ ^[a-f0-9]{64}$ ]] || printf 'SHA-256 phai gom 64 ky tu hex.\n'
+    done
+    if [[ "$APPLY" != yes ]]; then
+        printf '\nCANH BAO: cai package, doi hostname va DNS. Chi dung VPS sach, khong co panel.\n'
+        printf 'Co the gian doan dich vu; hay snapshot/backup truoc. Hoan tac day du bang snapshot.\n'
+        read -r -p "Anh co dong y de thuc hien thao tac nay khong? Nhap DONG Y: " CONFIRM_INSTALL || die "Da huy"
+        [[ "$CONFIRM_INSTALL" == "DONG Y" ]] || die "Da huy, chua thay doi he thong"
+        APPLY=yes
+    fi
 fi
 [[ "$APPLY" == yes ]] || die "Dung --dry-run de xem, --apply de xac nhan cai moi"
 [[ -n "$ZCS_SHA256" ]] || die "Can --sha256 tu nguon tin cay cho dung archive; khong dung hash Ubuntu22 cho OS khac"
