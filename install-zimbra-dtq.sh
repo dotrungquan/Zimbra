@@ -77,12 +77,42 @@ Optional:
 EOF
 }
 
+# Timeline theo buoc thuc te; khong hien phan tram gia.
+STEP_NUMBER=0
+STEP_STARTED=0
+CURRENT_STEP=""
 log() {
-    echo
-    echo "============================================================"
-    echo "[$(date '+%F %T')] $*"
-    echo "============================================================"
+    if [[ -n "$CURRENT_STEP" ]]; then
+        printf '[%s] KET THUC BUOC %02d | %ss | %s\n' "$(date '+%T')" "$STEP_NUMBER" "$((SECONDS-STEP_STARTED))" "$CURRENT_STEP"
+    fi
+    STEP_NUMBER=$((STEP_NUMBER+1))
+    STEP_STARTED=$SECONDS
+    CURRENT_STEP="$*"
+    printf '\n============================================================\n'
+    printf '[%s] BUOC %02d | %s\n' "$(date '+%F %T')" "$STEP_NUMBER" "$CURRENT_STEP"
+    printf 'Tong thoi gian: %ss | Log: %s\n' "$SECONDS" "$LOG_FILE"
+    printf '============================================================\n'
 }
+
+# Giu nguyen stdout/stderr cua installer va bao con dang chay moi 15s.
+# Heartbeat khong dong nghia dich vu da khoi dong thanh cong.
+run_visible() (
+    label="$1"
+    shift
+    started=$SECONDS
+    monitor=""
+    trap '[[ -z "$monitor" ]] || { kill "$monitor" 2>/dev/null || :; wait "$monitor" 2>/dev/null || :; }' EXIT
+    (
+        while sleep 15; do
+            printf '[%s] DANG CHAY | %s | %ss - cho lenh hoan tat\n' "$(date '+%T')" "$label" "$((SECONDS-started))"
+        done
+    ) &
+    monitor=$!
+    rc=0
+    "$@" || rc=$?
+    printf '[%s] %s | %s | exit=%s | %ss\n' "$(date '+%T')" "$([[ "$rc" == 0 ]] && printf OK || printf LOI)" "$label" "$rc" "$((SECONDS-started))"
+    exit "$rc"
+)
 
 summary_rule() {
     local character="${1:-=}"
@@ -817,9 +847,14 @@ if [[ -t 0 ]]; then
     if [[ "$APPLY" != yes ]]; then
         printf '\nCANH BAO: cai package, doi hostname va DNS. Chi dung VPS sach, khong co panel.\n'
         printf 'Co the gian doan dich vu; hay snapshot/backup truoc. Hoan tac day du bang snapshot.\n'
-        read -r -p "Anh co dong y de thuc hien thao tac nay khong? Nhap DONG Y: " CONFIRM_INSTALL || die "Da huy"
-        [[ "$CONFIRM_INSTALL" == "DONG Y" ]] || die "Da huy, chua thay doi he thong"
-        APPLY=yes
+        while true; do
+            read -r -p "Bat dau cai dat? [y/N]: " CONFIRM_INSTALL || die "Da huy"
+            case "$CONFIRM_INSTALL" in
+                y|Y) APPLY=yes; break ;;
+                n|N|"") die "Da huy, chua thay doi he thong" ;;
+                *) printf 'Vui long nhap Y hoac N.\n' ;;
+            esac
+        done
     fi
 fi
 [[ "$APPLY" == yes ]] || die "Dung --dry-run de xem, --apply de xac nhan cai moi"
@@ -1056,7 +1091,7 @@ log "Install Zimbra software"
 
 cd "$ZCS_DIR"
 
-if ! ./install.sh -s "$SOFTWARE_CONFIG_FILE"; then
+if ! run_visible "Cai package Zimbra" ./install.sh -s "$SOFTWARE_CONFIG_FILE"; then
     echo
     echo "Zimbra installer diagnostics (last 120 log lines):"
     if [[ -r /tmp/install.log ]]; then
@@ -1210,7 +1245,7 @@ chmod 600 "$CONFIG_FILE"
 
 log "Configure Zimbra"
 
-/opt/zimbra/libexec/zmsetup.pl -c "$CONFIG_FILE"
+run_visible "Cau hinh Zimbra / LDAP / mailbox" /opt/zimbra/libexec/zmsetup.pl -c "$CONFIG_FILE"
 
 # Some Zimbra builds fall back to HOSTNAME for these three accounts even when
 # AVDOMAIN is set. Verify them against the primary mail domain and repair the
