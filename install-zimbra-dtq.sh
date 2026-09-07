@@ -72,7 +72,7 @@ Optional:
   --mail-host NAME          Hostname prefix (default: mail)
   --timezone ZONE           Timezone (default: Asia/Ho_Chi_Minh)
   --installer PATH_OR_URL   Local archive or download URL
-  --sha256 HASH             Expected SHA-256 for the archive
+  --sha256 HASH             Optional SHA-256 for the archive
   -h, --help                Show this help
 EOF
 }
@@ -379,8 +379,13 @@ escape_config_value() {
 installer_is_valid() {
     local archive="$1"
 
-    echo "${ZCS_SHA256}  ${archive}" | sha256sum --check --status && \
-        tar -tzf "$archive" >/dev/null
+    # Checksum tuy chon; van kiem tra archive co doc duoc hay khong.
+    if [[ -n "$ZCS_SHA256" ]]; then
+        echo "${ZCS_SHA256}  ${archive}" | sha256sum --check --status || return 1
+    else
+        printf 'CANH BAO: Khong doi chieu SHA-256; chua xac minh tinh xac thuc bo cai.\n' >&2
+    fi
+    tar -tzf "$archive" >/dev/null
 }
 
 verify_installer() {
@@ -806,14 +811,9 @@ if [[ "$DRY_RUN" == yes ]]; then
     printf 'OS=%s %s\nURL=%s\nHOSTNAME=%s\nMX=%s -> %s\nDNS=127.0.0.1 (dnsmasq)\n' "$ID" "$VERSION_ID" "$ZCS_SOURCE" "$FQDN" "$DOMAIN" "$FQDN"
     exit 0
 fi
-# Thu thap checksum va xac nhan truoc moi thay doi he thong.
+# Xac nhan truoc moi thay doi he thong; khong bat nhap checksum.
 if [[ -t 0 ]]; then
     printf '\nOS: %s %s\nDomain: %s\nHostname: %s\nBo cai: %s\n' "$ID" "$VERSION_ID" "$DOMAIN" "$FQDN" "$ZCS_SOURCE"
-    while [[ ! "$ZCS_SHA256" =~ ^[a-f0-9]{64}$ ]]; do
-        read -r -p "Nhap SHA-256 bo cai tu nguon tin cay (Ctrl+C de huy): " ZCS_SHA256 || die "Da huy nhap"
-        ZCS_SHA256="${ZCS_SHA256,,}"
-        [[ "$ZCS_SHA256" =~ ^[a-f0-9]{64}$ ]] || printf 'SHA-256 phai gom 64 ky tu hex.\n'
-    done
     if [[ "$APPLY" != yes ]]; then
         printf '\nCANH BAO: cai package, doi hostname va DNS. Chi dung VPS sach, khong co panel.\n'
         printf 'Co the gian doan dich vu; hay snapshot/backup truoc. Hoan tac day du bang snapshot.\n'
@@ -823,7 +823,6 @@ if [[ -t 0 ]]; then
     fi
 fi
 [[ "$APPLY" == yes ]] || die "Dung --dry-run de xem, --apply de xac nhan cai moi"
-[[ -n "$ZCS_SHA256" ]] || die "Can --sha256 tu nguon tin cay cho dung archive; khong dung hash Ubuntu22 cho OS khac"
 [[ ! -e /opt/zimbra ]] || die "/opt/zimbra da ton tai; khong cai de"
 # Khong tu dong go dich vu dang phuc vu production.
 for svc in postfix exim4 nginx apache2 httpd named dnsmasq; do
