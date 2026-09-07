@@ -862,7 +862,19 @@ fi
 [[ "$APPLY" == yes ]] || die "Dung --dry-run de xem, --apply de xac nhan cai moi"
 [[ ! -e /opt/zimbra ]] || die "/opt/zimbra da ton tai; khong cai de"
 # Khong tu dong go dich vu dang phuc vu production.
-for svc in postfix exim4 nginx apache2 httpd named dnsmasq; do
+# Cho phep chay lai DNS do chinh script quan ly, ke ca ban cu chua co marker.
+DNS_OWNED=no
+if [[ -f /etc/zimbra-local-dns.conf && -f /etc/systemd/system/dnsmasq.service.d/zimbra.conf ]] &&
+   grep -Fxq 'ExecStart=/usr/sbin/dnsmasq --keep-in-foreground --conf-file=/etc/zimbra-local-dns.conf' /etc/systemd/system/dnsmasq.service.d/zimbra.conf; then
+    DNS_OWNED=yes
+fi
+if systemctl is-active --quiet dnsmasq && [[ "$DNS_OWNED" != yes ]]; then
+    die "dnsmasq dang chay nhung khong phai cau hinh cua script. Can kiem tra thu cong, KHONG can cai lai OS."
+fi
+if [[ -e /etc/zimbra-local-dns.conf && "$DNS_OWNED" != yes ]]; then
+    die "DNS config khong thuoc script; dung de tranh ghi de"
+fi
+for svc in postfix exim4 nginx apache2 httpd named; do
     if systemctl is-active --quiet "$svc"; then
         die "Dich vu $svc dang chay; can VPS sach hoac xu ly thu cong"
     fi
@@ -980,7 +992,13 @@ printf '%s %s %s\n' "$LOCAL_IP" "$FQDN" "$MAIL_HOST" >> "$HOSTS_TMP"
 install -m 644 "$HOSTS_TMP" /etc/hosts
 # Cau hinh rieng, chi bind loopback, tranh open resolver va vong lap DNS.
 DNS_CONFIG=/etc/zimbra-local-dns.conf
-[[ ! -e "$DNS_CONFIG" ]] || die "$DNS_CONFIG da ton tai"
+# Backup config cu truoc khi cap nhat lai domain/IP.
+if [[ -e "$DNS_CONFIG" ]]; then
+    cp -a "$DNS_CONFIG" "$BACKUP_DIR/zimbra-local-dns.conf"
+fi
+if [[ -e /etc/systemd/system/dnsmasq.service.d/zimbra.conf ]]; then
+    cp -a /etc/systemd/system/dnsmasq.service.d/zimbra.conf "$BACKUP_DIR/dnsmasq-service.conf"
+fi
 cat > "$DNS_CONFIG" <<EOF
 listen-address=127.0.0.1
 bind-interfaces
@@ -1002,12 +1020,17 @@ ExecStart=/usr/sbin/dnsmasq --keep-in-foreground --conf-file=$DNS_CONFIG
 EOF
 dnsmasq --test --conf-file="$DNS_CONFIG"
 systemctl daemon-reload
-systemctl enable --now dnsmasq
+# Restart de nap config moi, enable --now khong reload service dang chay.
+systemctl enable dnsmasq
+systemctl restart dnsmasq
 [[ "$(dig @127.0.0.1 +short A "$FQDN")" == "$LOCAL_IP" ]] || die "DNS local A loi"
 # NetworkManager khong ghi de resolver; khong restart network/SSH.
 if systemctl is-active --quiet NetworkManager; then
     install -d -m 755 /etc/NetworkManager/conf.d
-    [[ ! -e /etc/NetworkManager/conf.d/90-zimbra-dns.conf ]] || die "NM DNS config da ton tai"
+    if [[ -e /etc/NetworkManager/conf.d/90-zimbra-dns.conf ]]; then
+        [[ "$DNS_OWNED" == yes ]] || die "NM DNS config da ton tai va khong xac dinh quyen so huu"
+        cp -a /etc/NetworkManager/conf.d/90-zimbra-dns.conf "$BACKUP_DIR/90-zimbra-dns.conf"
+    fi
     printf '[main]\ndns=none\n' > /etc/NetworkManager/conf.d/90-zimbra-dns.conf
     nmcli general reload
 fi
@@ -1019,6 +1042,17 @@ chmod 644 /etc/resolv.conf
 [[ "$(dig +short A "$FQDN")" == "$LOCAL_IP" ]] || die "Resolver he thong sai"
 dig +short MX "$DOMAIN" | grep -Fq "10 $FQDN." || die "MX local sai"
 dig +short A repo.zimbra.com | grep -q . || die "DNS upstream khong hoat dong"
+# Chi tat resolved SAU khi DNS local va resolver he thong da duoc kiem tra.
+# Luu trang thai de quan tri vien co the khoi phuc neu can.
+if [[ "$(systemctl show -p LoadState --value systemd-resolved.service 2>/dev/null)" != "not-found" ]]; then
+    log "Vo hieu systemd-resolved sau khi DNS local da san sang"
+    systemctl is-enabled systemd-resolved.service > "$BACKUP_DIR/resolved.enabled.before" 2>&1 || true
+    systemctl is-active systemd-resolved.service > "$BACKUP_DIR/resolved.active.before" 2>&1 || true
+    systemctl disable systemd-resolved.service
+    systemctl stop systemd-resolved.service
+    [[ "$(dig +short A "$FQDN")" == "$LOCAL_IP" ]] || die "DNS loi sau khi stop resolved; xem backup $BACKUP_DIR"
+    dig +short A repo.zimbra.com | grep -q . || die "Upstream DNS loi sau khi stop resolved"
+fi
 echo "DNS local OK; public MX/PTR/SPF/DKIM van can truoc khi dua mail vao production."
 
 # ------------------------------------------------------------
